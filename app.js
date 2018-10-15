@@ -1,25 +1,35 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var app = express();
+var mongoose = require('mongoose');
 
+var app = express();
 var port = process.env.PORT || 3000;
+
+mongoose.connect('mongodb://localhost/yelp_camp');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
-var campgrounds = [
-  { name: 'Salmon Creek', image: 'https://images.unsplash.com/photo-1519395612667-3b754d7b9086?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=2408b72d00a5efaf0f2e14d02f144790&auto=format&fit=crop&w=500&q=60' },
-  { name: 'Granite Hill', image: 'https://images.unsplash.com/photo-1526491109672-74740652b963?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=343c64df1b43f50769656d03c2b9f523&auto=format&fit=crop&w=500&q=60' },
-  { name: 'Mountain Goat\'s Rest', image: 'https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=5cedc6b95f731395da7269d2341f9a5e&auto=format&fit=crop&w=500&q=60' }
-];
+// Schema setup
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+});
+
+var Campground = mongoose.model('Campground', campgroundSchema);
 
 app.get('/', function(req, res) {
   res.render('landing');
 });
 
 app.get('/campgrounds', function(req, res) {
-
-  res.render('campgrounds', { campgrounds: campgrounds });
+  Campground.find({}, function(err, campgrounds) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render('campgrounds', { campgrounds: campgrounds });
+    }
+  });
 });
 
 app.post('/campgrounds', function(req, res) {
@@ -27,9 +37,13 @@ app.post('/campgrounds', function(req, res) {
   var image = req.body.image;
   var newCampground = { name: name, image: image };
 
-  campgrounds.push(newCampground);
-
-  res.redirect('/campgrounds');
+  Campground.create(newCampground, function(err, campground) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/campgrounds');
+    }
+  });
 });
 
 app.get('/campgrounds/new', function(req, res) {

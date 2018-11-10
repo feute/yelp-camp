@@ -3,6 +3,9 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
 var Campground = require('./models/campground');
+var seedDB = require('./seeds')
+
+seedDB();
 
 var app = express();
 var port = process.env.PORT || 3000;

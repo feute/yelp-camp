@@ -18,7 +18,7 @@ var seedDB = require('./seeds');
 var app = express();
 var port = process.env.PORT || 3000;
 
-mongoose.connect('mongodb://localhost/yelp_camp');
+mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/yelp_camp');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
